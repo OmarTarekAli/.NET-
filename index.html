@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BrainStack E-Commerce with Admin Dashboard</title>
+    <style>
+        /* ---------------- Reset & Base ---------------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background-color: #030637;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: #030637;
+            color: #ffffff;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ---------------- Layout ---------------- */
+        header {
+            background: #3c0753;
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .p-title, .card h4 {
+            color: #fff;
+        }
+
+        .p-title {
+            font-weight: 600;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .search {
+            flex: 1;
+        }
+
+            .search input {
+                width: 100%;
+                padding: 8px 12px;
+                border-radius: 8px;
+                border: 1px solid #d1d5db;
+                color: #000;
+            }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            .btn:hover {
+                opacity: 0.9;
+            }
+
+            .btn.ghost {
+                background: transparent;
+                color: #ffffff;
+                border: 1px solid #ffffff;
+            }
+
+                .btn.ghost:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                }
+
+        .layout {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .left-panel {
+            width: 230px;
+        }
+
+        .main {
+            flex: 1;
+        }
+
+        .right-panel {
+            width: 300px;
+        }
+
+        /* ---------------- Sidebar ---------------- */
+        .card {
+            background: #720455;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .categories {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cat {
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #720455;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background 0.2s, border 0.2s;
+        }
+
+            .cat:hover {
+                background: #5b0343;
+            }
+
+            .cat.active {
+                border: 1px solid #ffffff;
+                font-weight: bold;
+                background: #5b0343;
+            }
+
+        /* ---------------- Product Grid ---------------- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .product {
+            background: #720455;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
+            transition: transform 0.2s;
+        }
+
+            .product:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(2, 6, 23, 0.2);
+            }
+
+            .product img {
+                width: 100%;
+                height: 160px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+        .p-price {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .p-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meta-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ---------------- Cart ---------------- */
+        .cart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+            .cart-item:last-child {
+                border-bottom: none;
+            }
+
+            .cart-item img {
+                width: 56px;
+                height: 56px;
+                object-fit: cover;
+                border-radius: 6px;
+                border: 1px solid #e6edf3;
+            }
+
+        .total {
+            font-weight: 800;
+            font-size: 18px;
+            margin-top: 12px;
+        }
+
+        /* ---------------- Product & Checkout Modal ---------------- */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        /* Modal نفسها (داخل الـ backdrop) */
+        .modal {
+            width: 720px;
+            background: #720455;
+            padding: 18px;
+            border-radius: 12px;
+        }
+
+        .modal-grid {
+            display: flex;
+            gap: 16px;
+        }
+
+            .modal-grid img {
+                width: 320px;
+                height: 240px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        /* ---------------- Forms & Checkout ---------------- */
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+            .form-row .col {
+                flex: 1;
+            }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            color: #000;
+        }
+
+        /* ---------------- Login/Register Modals ---------------- */
+        #registerModal, #loginModal, #orderDetailsModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 200;
+        }
+
+            #registerModal .modal-content, #loginModal .modal-content, #orderDetailsModal .modal {
+                background-color: #720455;
+                padding: 20px;
+                border-radius: 8px;
+                width: 400px;
+                max-width: 90%;
+                box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.4);
+                position: relative;
+            }
+
+            #orderDetailsModal .modal {
+                width: 500px;
+            }
+
+            #registerModal .modal-content input, #loginModal .modal-content input, #registerModal .modal-content textarea {
+                width: 100%;
+                padding: 10px;
+                margin: 8px 0;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                color: #000;
+            }
+
+            #registerModal .modal-content button, #loginModal .modal-content button {
+                width: 100%;
+                padding: 10px;
+                margin-top: 10px;
+                background-color: #0f172a;
+                border: none;
+                color: #fff;
+                font-size: 16px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+        #loginForm .btn.ghost {
+            width: auto;
+            margin-top: 0;
+        }
+
+        .close {
+            color: #fff;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+            .close:hover {
+                color: #ccc;
+            }
+
+        /* ---------------- Admin Dashboard Styles ---------------- */
+        .admin-main {
+            margin-left: 0;
+            padding: 25px;
+            background: #eef1f6;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 220px;
+            height: 100vh;
+            background: #2c3e50;
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: #fff;
+            padding-top: 20px;
+        }
+
+            .admin-sidebar h2 {
+                text-align: center;
+                font-size: 22px;
+                margin-bottom: 30px;
+            }
+
+        .menu-item {
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .menu-item:hover, .menu-item.active {
+                background: #1abc9c;
+            }
+
+        .admin-main h1 {
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .btn-add {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-edit {
+            background: #f1c40f;
+            color: #fff;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+            .admin-table th {
+                background: #3498db;
+                color: #fff;
+                padding: 12px;
+                text-align: left;
+            }
+
+            .admin-table td {
+                padding: 12px;
+                border-bottom: 1px solid #eee;
+            }
+
+            .admin-table tr:nth-child(even) {
+                background: #f8f8f8;
+            }
+
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+            z-index: 1000;
+        }
+
+        .admin-modal {
+            background: #fff;
+            width: 350px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+            color: #000;
+        }
+
+            .admin-modal h3 {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            .admin-modal input, .admin-modal select, .admin-modal textarea {
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0 10px 0;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-sizing: border-box;
+                color: #000;
+            }
+
+            .admin-modal button {
+                width: 48%;
+                padding: 10px;
+                margin-top: 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                border: none;
+            }
+
+        .card-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .admin-card {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+            .admin-card h2 {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            .admin-card p {
+                font-size: 32px;
+                margin-top: 10px;
+                font-weight: bold;
+            }
+
+        .bar {
+            width: 60px;
+            text-align: center;
+        }
+
+            .bar div {
+                border-radius: 5px;
+                transition: 0.3s;
+            }
+
+            .bar small {
+                display: block;
+                margin-top: 5px;
+                font-size: 12px;
+            }
+
+        /* ---------------- Responsive ---------------- */
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .layout {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .layout {
+                flex-direction: column;
+            }
+
+            .left-panel, .right-panel {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .modal {
+                width: 100%;
+            }
+
+            .modal-grid {
+                flex-direction: column;
+            }
+
+                .modal-grid img {
+                    width: 100%;
+                    height: auto;
+                }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .nav-actions {
+                width: 100%;
+            }
+
+                .nav-actions .btn {
+                    flex: 1;
+                }
+
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .admin-sidebar h2 {
+                margin-bottom: 10px;
+            }
+
+            .menu-item {
+                padding: 10px;
+                display: inline-block;
+                margin: 5px;
+            }
+
+            .card-container {
+                flex-direction: column;
+            }
+        }
+
+        /* small helpers */
+        .muted {
+            color: #cccccc;
+            font-size: 13px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .page {
+            display: block;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== CUSTOMER VIEW ===== -->
+    <div id="customerView">
+        <header>
+            <div class="brand" id="storeBrand">BrainStack Store</div>
+            <div class="search">
+                <input type="search" placeholder="Search products, categories..." id="searchInput" />
+            </div>
+            <div class="nav-actions">
+                <button class="btn ghost" id="btnLogin">Login</button>
+                <button class="btn" id="btnCart">Cart (0)</button>
+                <button class="btn" id="btnAdmin" style="background: #1abc9c;">Admin</button>
+            </div>
+        </header>
+
+        <div class="layout">
+            <aside class="left-panel">
+                <div class="card">
+                    <h4>Categories</h4>
+                    <div class="categories" id="categories">
+                        <div class="cat active" data-cat="all">All Products</div>
+                        <div class="cat" data-cat="Electronics">Electronics</div>
+                        <div class="cat" data-cat="Books">Books</div>
+                        <div class="cat" data-cat="Fitness">Fitness</div>
+                        <div class="cat" data-cat="Home">Home</div>
+                    </div>
+                </div>
+                <div style="height: 16px"></div>
+                <div class="card">
+                    <h4>Filters</h4>
+                    <label class="muted">Price range</label>
+                    <div style="display: flex; gap: 8px; margin-top: 8px">
+                        <input id="priceMin" placeholder="Min" type="number" />
+                        <input id="priceMax" placeholder="Max" type="number" />
+                    </div>
+                    <div style="height: 8px"></div>
+                    <button class="btn" id="applyFilters" style="width: 100%">Apply</button>
+                </div>
+            </aside>
+
+            <main class="main">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Products</h3>
+                        <div class="muted">
+                            Showing <strong id="count">0</strong> products
+                        </div>
+                    </div>
+                    <div style="height: 12px"></div>
+                    <div class="grid" id="productGrid">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+                <div style="height: 16px"></div>
+                <div id="ordersPanel" class="card" style="display: none; padding: 20px">
+                    <h3>Your Orders (Demo)</h3>
+                    <div id="ordersList"></div>
+                </div>
+            </main>
+
+            <aside class="right-panel">
+                <div class="card">
+                    <h4>Your Cart</h4>
+                    <div class="cart-list" id="cartList">
+                        <p class="muted">Cart is empty</p>
+                    </div>
+                    <div class="total" id="cartTotal">Total: $0.00</div>
+                    <div style="height: 8px"></div>
+                    <button class="btn" id="checkoutBtn" style="width: 100%">Proceed to Checkout</button>
+                </div>
+                <div style="height: 12px"></div>
+                <div class="card">
+                    <h4>Quick Checkout (demo)</h4>
+                    <div class="muted">
+                        Click to open a simple checkout form and simulate placing an order.
+                    </div>
+                    <div style="height: 8px"></div>
+                    <button class="btn ghost" id="openCheckout" style="width: 100%">Open Checkout</button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Modals for Customer View -->
+        <div id="registerModal" class="modal-backdrop">
+            <div class="modal-content">
+                <span class="close" id="closeRegister">&times;</span>
+                <h2>Create Account</h2>
+                <form id="registerForm">
+                    <input type="text" placeholder="Full Name" name="name" required />
+                    <input type="email" placeholder="Email" name="email" required />
+                    <input type="password" placeholder="Password" name="password" required />
+                    <input type="password" placeholder="Confirm Password" name="confirmPassword" required />
+                    <input type="text" placeholder="Shipping Address" name="shipping" required />
+                    <input type="text" placeholder="Billing Address" name="billing" required />
+                    <button type="submit">Register</button>
+                    <div style="height: 10px"></div>
+                    <div class="muted center">Already have an account? <a href="#" id="linkToLogin">Login</a></div>
+                </form>
+            </div>
+        </div>
+
+        <div id="loginModal" class="modal-backdrop">
+            <div class="modal-content">
+                <span class="close" id="closeLogin">&times;</span>
+                <h3>Login / View Orders (demo)</h3>
+                <form id="loginForm">
+                    <label>Email</label>
+                    <input type="email" name="email" value="demo@example.com" required />
+                    <label>Password</label>
+                    <input type="password" name="password" value="123456" required />
+                    <div style="display: flex; gap: 8px; margin-top: 10px">
+                        <button class="btn" type="submit">Login</button>
+                        <button type="button" class="btn ghost" id="registerBtn">
+                            Register
+                        </button>
+                        <button type="button" class="btn ghost" id="viewOrdersBtn">
+                            Orders
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal-backdrop" id="productModal">
+            <div class="modal card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 id="modalTitle">Product title</h3>
+                    <button class="btn ghost" id="closeModal">Close</button>
+                </div>
+                <div style="height: 10px"></div>
+                <div class="modal-grid">
+                    <img id="modalImg" src="" alt="product image" />
+                    <div>
+                        <div id="modalDesc" class="muted">Description ...</div>
+                        <div style="height: 8px"></div>
+                        <div class="p-price" id="modalPrice">$0.00</div>
+                        <div style="height: 8px"></div>
+                        <div class="modal-actions">
+                            <input id="modalQty" type="number" value="1" min="1" style="width: 80px; padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; color: #000;" />
+                            <button class="btn" id="addToCart">Add to cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-backdrop" id="checkoutModal">
+            <div class="modal card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Checkout</h3>
+                    <button class="btn ghost" id="closeCheckout">Close</button>
+                </div>
+                <div style="height: 10px"></div>
+                <form id="checkoutForm">
+                    <div class="form-row">
+                        <div class="col">
+                            <label class="muted">Name</label>
+                            <input required name="name" value="User Demo" />
+                        </div>
+                        <div class="col">
+                            <label class="muted">Email</label>
+                            <input required type="email" name="email" value="user@demo.com" />
+                        </div>
+                    </div>
+                    <div style="height: 8px"></div>
+                    <label class="muted">Shipping Address</label>
+                    <textarea required name="address" rows="3">123 Example Street, Apt 4B</textarea>
+                    <div style="height: 8px"></div>
+                    <label class="muted">Payment method (demo)</label>
+                    <select name="payment">
+                        <option>Card</option>
+                        <option>Cash on Delivery</option>
+                    </select>
+                    <div style="height: 12px"></div>
+                    <div style="display: flex; gap: 8px">
+                        <button class="btn" type="submit">Place Order</button>
+                        <button class="btn ghost" type="button" id="cancelCheckout">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal-backdrop" id="orderDetailsModal">
+            <div class="modal card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Order Details</h3>
+                    <button class="btn ghost" id="closeOrderDetails">Close</button>
+                </div>
+                <div style="height: 10px"></div>
+                <div id="orderItemsList"></div>
+                <div style="height: 8px"></div>
+                <div class="total" id="orderTotal">Order Total: $0.00</div>
+                <div class="muted" id="orderShipping">Shipping: -</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN DASHBOARD ===== -->
+    <div id="adminView" class="hidden">
+        <div class="admin-sidebar">
+            <h2>Admin</h2>
+            <div class="menu-item active" onclick="showPage(event,'products')">Products</div>
+            <div class="menu-item" onclick="showPage(event,'customers')">Customers</div>
+            <div class="menu-item" onclick="showPage(event,'reports')">Reports</div>
+            <div class="menu-item" onclick="switchToCustomerView()" style="position: absolute; bottom: 20px; width: calc(100% - 40px); background: #3c0753;">
+                ← Back to Store
+            </div>
+        </div>
+
+        <div class="admin-main">
+            <!-- PRODUCTS PAGE -->
+            <div id="products" class="page">
+                <h1>Products</h1>
+                <button class="btn btn-add" onclick="openAddProduct()">+ Add New Product</button>
+                <p>Total Products: <span id="total-prod">0</span></p>
+                <table class="admin-table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tbody id="product-table"></tbody>
+                </table>
+            </div>
+
+            <!-- CUSTOMERS PAGE -->
+            <div id="customers" class="page" style="display:none">
+                <h1>Customers</h1>
+                <p>Total Customers: <span id="total-cust">0</span></p>
+                <table class="admin-table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tbody id="customer-table"></tbody>
+                </table>
+            </div>
+
+            <!-- REPORTS PAGE -->
+            <div id="reports" class="page" style="display:none">
+                <h1>Reports & Analytics</h1>
+                <!-- SUMMARY CARDS -->
+                <div class="card-container">
+                    <div class="admin-card" style="color:#3498db;">
+                        <h2>Total Products</h2>
+                        <p id="total-prod-r">0</p>
+                    </div>
+                    <div class="admin-card" style="color:#2ecc71;">
+                        <h2>Total Customers</h2>
+                        <p id="total-cust-r">0</p>
+                    </div>
+                    <div class="admin-card" style="color:#e67e22;">
+                        <h2>Top Product</h2>
+                        <p id="top-product-name">—</p>
+                    </div>
+                </div>
+
+                <!-- TOP PRODUCTS -->
+                <h2 style="color:#333;">Top Selling Products</h2>
+                <table class="admin-table" style="margin-bottom:30px;">
+                    <tr>
+                        <th>Product</th>
+                        <th>Sales</th>
+                    </tr>
+                    <tbody id="top-products-table"></tbody>
+                </table>
+
+                <!-- TOP CUSTOMERS -->
+                <h2 style="color:#333;">Top Customers</h2>
+                <table class="admin-table" style="margin-bottom:30px;">
+                    <tr>
+                        <th>Customer</th>
+                        <th>Total Purchases</th>
+                    </tr>
+                    <tbody id="top-customers-table"></tbody>
+                </table>
+
+                <!-- SIMPLE CHART -->
+                <h2 style="color:#333;">Sales Chart (Top 5 Products)</h2>
+                <div id="chart-container" style="display:flex; gap:20px; align-items:flex-end; height:200px; margin-top:20px;"></div>
+            </div>
+        </div>
+
+        <!-- ===== ADD / EDIT MODAL ===== -->
+        <div class="admin-overlay" id="modal">
+            <div class="admin-modal">
+                <h3 id="modal-title">Add Product</h3>
+                <!-- Category selection -->
+                <label for="pcategory" style="font-weight:bold;">Category</label>
+                <select id="pcategory" onchange="onCategoryChange()">
+                    <option value="">Select Category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Books">Books</option>
+                    <option value="Fitness">Fitness</option>
+                    <option value="Home">Home</option>
+                </select>
+
+                <!-- Sub-category selection (if exists) -->
+                <div id="sub-category-container" style="display:none;">
+                    <label for="psubcategory" style="font-weight:bold;">Sub-Category</label>
+                    <select id="psubcategory" onchange="onSubCategoryChange()"></select>
+                </div>
+
+                <!-- Common Fields -->
+                <label for="pname" style="font-weight:bold;">Product Name</label>
+                <input type="text" id="pname" placeholder="Enter product name">
+
+                <label for="pdesc" style="font-weight:bold;">Description (Optional)</label>
+                <textarea id="pdesc" placeholder="Enter description" style="resize:none;height:60px;"></textarea>
+
+                <label for="pprice" style="font-weight:bold;">Price</label>
+                <input type="number" id="pprice" placeholder="Enter price" step="0.001" min="0">
+
+                <label for="pstock" style="font-weight:bold;">Stock Level</label>
+                <input type="number" id="pstock" placeholder="Enter stock quantity" min="0">
+
+                <label for="pmodel" style="font-weight:bold;">Model</label>
+                <input type="text" id="pmodel" placeholder="Enter model name/number">
+
+                <label for="pstatus" style="font-weight:bold;">Status</label>
+                <select id="pstatus">
+                    <option value="Available">Available</option>
+                    <option value="OutOfStock">OutOfStock</option>
+                    <option value="Discontinued">Discontinued</option>
+                </select>
+
+                <!-- Dynamic Attributes -->
+                <div id="dynamic-attributes" style="max-height:250px; overflow-y:auto;"></div>
+
+                <div style="display:flex;justify-content:space-between;margin-top:10px;">
+                    <button onclick="closeModal()">Cancel</button>
+                    <button id="saveBtn" style="background:#3498db;color:#fff;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- Global Variables ----------
+        let currentView = 'customer'; // 'customer' or 'admin'
+
+        // ---------- Shared Products Data ----------
+        let products = JSON.parse(localStorage.getItem('storeProducts')) || [
+            {
+                id: 101,
+                name: "Blue Notebook",
+                desc: "80-page ruled notebook, perfect for note-taking and school work.",
+                price: 12.5,
+                stock: 24,
+                category: "Books",
+                sales: 45,
+                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDah4fG25Z9y0thrshMBMeqDMmCtq13II8Gg&s",
+                attributes: { author: "Notebook Co.", publisher: "Stationery Press", pages: 80, language: "English" }
+            },
+            {
+                id: 102,
+                name: "Mechanical Pencil",
+                desc: "0.5mm precision pencil with built-in eraser, durable and reliable.",
+                price: 3.75,
+                stock: 120,
+                category: "Books",
+                sales: 120,
+                img: "https://www.apple.com/v/apple-pencil/af/images/overview/pro/hero__z7kty0msgsya_large.jpg",
+                attributes: { author: "Pencil Inc.", publisher: "Writing Tools", pages: 1, language: "N/A" }
+            },
+            {
+                id: 201,
+                name: "Wireless Headphones",
+                desc: "Over-ear headphones with active noise reduction, 40 hours battery life.",
+                price: 75.0,
+                stock: 15,
+                category: "Electronics",
+                sales: 32,
+                img: "https://m.media-amazon.com/images/I/61kFsU+CYkL._AC_UF894,1000_QL80_.jpg",
+                attributes: { gpu: "N/A", camera: "N/A", network: "Bluetooth 5.0" }
+            },
+            {
+                id: 202,
+                name: "USB-C Charger",
+                desc: "Fast charging 30W wall charger, compatible with most modern devices.",
+                price: 18.0,
+                stock: 50,
+                category: "Electronics",
+                sales: 89,
+                img: "https://www.arkema.com/files/live/sites/shared_arkema/files/images/markets/Electronics%20electrical/electronics.jpg",
+                attributes: { gpu: "N/A", camera: "N/A", network: "Wired" }
+            },
+            {
+                id: 301,
+                name: "Learning JS Book",
+                desc: "Beginner friendly JavaScript book, covering fundamental concepts and projects.",
+                price: 28.0,
+                stock: 40,
+                category: "Books",
+                sales: 67,
+                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpmphPupv6S3EkyeElYUHB11lr5SyjM0Y-Eg&s",
+                attributes: { author: "John Doe", publisher: "Tech Press", isbn: "123-456789", pages: 300, language: "English", year: 2023 }
+            },
+            {
+                id: 302,
+                name: "Ceramic Mug",
+                desc: "350ml white ceramic mug, ideal for coffee or tea.",
+                price: 9.5,
+                stock: 90,
+                category: "Home",
+                sales: 150,
+                img: "https://m.media-amazon.com/images/I/51ua83t5vFL._AC_SL1000_.jpg",
+                attributes: { material: "Ceramic", color: "White", dimensions: "10x8x10cm", weight: 350 }
+            },
+            {
+                id: 401,
+                name: "Digital Scale",
+                desc: "High precision digital kitchen scale, max capacity 5kg.",
+                price: 22.0,
+                stock: 35,
+                category: "Home",
+                sales: 42,
+                img: "https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1684347717-gettyimages-1249704201-646543b3558fe.jpg?crop=1xw:1xh;center,top&resize=980:*",
+                attributes: { material: "Plastic & Glass", color: "Silver", dimensions: "15x15x3cm", weight: 500 }
+            },
+        ];
+
+        // Mock data for orders
+        const orders = [
+            {
+                id: 101,
+                date: "2025-11-10",
+                status: "Shipped",
+                total: 34.50,
+                shipping: "123 Main St, Cairo, Egypt",
+                items: [
+                    { name: "Blue Notebook", qty: 2, price: 12.5 },
+                    { name: "Ceramic Mug", qty: 1, price: 9.5 },
+                ],
+            },
+            {
+                id: 102,
+                date: "2025-11-15",
+                status: "Processing",
+                total: 75.00,
+                shipping: "456 Elm St, Giza, Egypt",
+                items: [{ name: "Wireless Headphones", qty: 1, price: 75.0 }],
+            },
+        ];
+
+        // Mock data for customers
+        let customers = JSON.parse(localStorage.getItem('storeCustomers')) || [
+            { id: 1, name: "John Smith", email: "john@example.com", phone: "+1-555-0101", total_purchase: 345.50 },
+            { id: 2, name: "Emma Johnson", email: "emma@example.com", phone: "+1-555-0102", total_purchase: 225.75 },
+            { id: 3, name: "Michael Brown", email: "michael@example.com", phone: "+1-555-0103", total_purchase: 150.00 },
+            { id: 4, name: "Sarah Davis", email: "sarah@example.com", phone: "+1-555-0104", total_purchase: 489.25 },
+        ];
+
+        // Attributes definition for admin
+        const categoryAttributes = {
+            "Electronics": {
+                "Laptop": [{ label: "GPU", id: "attr_gpu", type: "text" }],
+                "Smart_Phone": [
+                    { label: "Camera", id: "attr_camera", type: "text" },
+                    { label: "Sim Type", id: "attr_sim", type: "text" },
+                    { label: "Network", id: "attr_network", type: "text" }
+                ],
+                "Smart_Watch": [
+                    { label: "Display Type", id: "attr_display", type: "text" },
+                    { label: "Strap Material", id: "attr_strap", type: "text" },
+                    { label: "Water Resistance", id: "attr_water", type: "text" },
+                    { label: "Battery Life", id: "attr_batterylife", type: "text" },
+                    { label: "Compatibility", id: "attr_compatibility", type: "text" }
+                ]
+            },
+            "Books": [
+                { label: "Author", id: "attr_author", type: "text" },
+                { label: "Publisher", id: "attr_publisher", type: "text" },
+                { label: "ISBN", id: "attr_isbn", type: "text" },
+                { label: "Pages", id: "attr_pages", type: "number" },
+                { label: "Language", id: "attr_language", type: "text" },
+                { label: "Publication Year", id: "attr_year", type: "number" }
+            ],
+            "Fitness": {
+                "Machine": [
+                    { label: "Weight", id: "attr_weight", type: "number" },
+                    { label: "Dimensions", id: "attr_dimensions", type: "text" },
+                    { label: "Max Load", id: "attr_maxload", type: "number" }
+                ],
+                "Clothes": [
+                    { label: "Size", id: "attr_size", type: "text" },
+                    { label: "Gender", id: "attr_gender", type: "text" },
+                    { label: "Fit Type", id: "attr_fittype", type: "text" },
+                    { label: "Color", id: "attr_color", type: "text" }
+                ],
+                "Shoes": [
+                    { label: "Shoe Size", id: "attr_shoesize", type: "text" },
+                    { label: "Gender", id: "attr_gender", type: "text" },
+                    { label: "Sole Type", id: "attr_soletype", type: "text" },
+                    { label: "Color", id: "attr_color", type: "text" },
+                    { label: "Shoe Type", id: "attr_shoetype", type: "text" }
+                ]
+            },
+            "Home": [
+                { label: "Material", id: "attr_material", type: "text" },
+                { label: "Color", id: "attr_color", type: "text" },
+                { label: "Dimensions", id: "attr_dimensions", type: "text" },
+                { label: "Weight", id: "attr_weight", type: "number" }
+            ]
+        };
+
+        // ---------- Helper Functions ----------
+        const $ = (s) => document.querySelector(s);
+        const $$ = (s) => document.querySelectorAll(s);
+
+        // ---------- Customer View Functions ----------
+        function renderProducts(list) {
+            const grid = $("#productGrid");
+            grid.innerHTML = "";
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="muted center" style="grid-column: 1 / -1; padding: 20px;">No products match your criteria.</div>';
+            }
+            list.forEach((p) => {
+                const el = document.createElement("div");
+                el.className = "product";
+                el.innerHTML = `
+                        <img src="${p.img}" alt="${p.name}"/>
+                        <div class="p-title">${p.name}</div>
+                        <div class="muted">${p.desc.substring(0, 50)}...</div>
+                        <div class="p-meta">
+                            <div class="p-price">$${p.price.toFixed(2)}</div>
+                            <div class="meta-right">
+                                <button class="btn ghost" data-id="${p.id}" data-action="view">View</button>
+                                <button class="btn" data-id="${p.id}" data-action="add">Add</button>
+                            </div>
+                        </div>
+                    `;
+                grid.appendChild(el);
+            });
+            $("#count").textContent = list.length;
+        }
+
+        function filterProducts() {
+            const selectedCat = $(".cat.active")?.dataset?.cat || "all";
+            const minPrice = Number($("#priceMin").value) || 0;
+            const maxPrice = Number($("#priceMax").value) || Infinity;
+            const searchTerm = $("#searchInput").value.toLowerCase();
+            const filtered = products.filter((p) => {
+                const categoryMatch = selectedCat === "all" || p.category === selectedCat;
+                const priceMatch = p.price >= minPrice && p.price <= maxPrice;
+                const searchMatch = p.name.toLowerCase().includes(searchTerm) ||
+                    p.desc.toLowerCase().includes(searchTerm) ||
+                    (p.category && p.category.toLowerCase().includes(searchTerm));
+                return categoryMatch && priceMatch && searchMatch;
+            });
+            renderProducts(filtered);
+            $("#ordersPanel").style.display = "none";
+        }
+
+        function openModal(id) {
+            const p = products.find((x) => x.id == id);
+            if (!p) return;
+            $("#modalTitle").textContent = p.name;
+            $("#modalDesc").textContent = p.desc;
+            $("#modalPrice").textContent = "$" + p.price.toFixed(2);
+            $("#modalImg").src = p.img;
+            $("#modalQty").value = 1;
+            $("#productModal").style.display = "flex";
+            $("#addToCart").dataset.id = p.id;
+        }
+
+        function closeModal() {
+            $("#productModal").style.display = "none";
+        }
+
+        function renderCart() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const list = $("#cartList");
+            list.innerHTML = "";
+            if (cart.length === 0) {
+                list.innerHTML = '<p class="muted">Cart is empty</p>';
+                $("#cartTotal").textContent = "Total: $0.00";
+                updateCartBtn();
+                return;
+            }
+            let total = 0;
+            cart.forEach((item) => {
+                const template = document.createElement("div");
+                template.className = "cart-item";
+                template.innerHTML = `
+                        <img src="${item.img}" />
+                        <div style="flex:1">
+                            <div style="font-weight:600">${item.name}</div>
+                            <div class="muted">$${item.price.toFixed(2)} x ${item.qty}</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div class="p-price">$${(item.price * item.qty).toFixed(2)}</div>
+                            <div style="height:6px"></div>
+                            <button class="btn ghost" data-action="remove" data-id="${item.id}">Remove</button>
+                        </div>
+                    `;
+                list.appendChild(template);
+                total += item.price * item.qty;
+            });
+            $("#cartTotal").textContent = `Total: $${total.toFixed(2)}`;
+            updateCartBtn();
+        }
+
+        function updateCartBtn() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const count = cart.reduce((s, i) => s + i.qty, 0);
+            $("#btnCart").textContent = `Cart (${count})`;
+        }
+
+        function addToCart(id, qty = 1) {
+            const p = products.find((x) => x.id == id);
+            if (!p) return alert("Product not found");
+            qty = Number(qty);
+            if (isNaN(qty) || qty < 1) return alert("Invalid quantity");
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const existing = cart.find((i) => i.id == id);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    qty,
+                    img: p.img,
+                });
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+            alert(`${qty} x ${p.name} added to cart!`);
+        }
+
+        function removeFromCart(id) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const product = products.find(p => p.id === id);
+            cart = cart.filter((i) => i.id != id);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+            alert(`${product ? product.name : 'Item'} removed from cart.`);
+        }
+
+        function renderOrders() {
+            const container = document.getElementById("ordersList");
+            container.innerHTML = "";
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="muted">No orders yet.</p>';
+                return;
+            }
+            orders.forEach((order) => {
+                const div = document.createElement("div");
+                div.className = "card";
+                div.style.background = "#5b0343";
+                div.style.marginBottom = "8px";
+                div.style.cursor = "pointer";
+                div.dataset.id = order.id;
+                div.innerHTML = `
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div><strong>Order #${order.id}</strong></div>
+                            <div class="muted">${order.date}</div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center; margin-top:4px;">
+                            <div>Status: <strong>${order.status}</strong></div>
+                            <div class="p-price">Total: $${order.total.toFixed(2)}</div>
+                        </div>
+                    `;
+                div.addEventListener("click", () => showOrderDetails(order.id));
+                container.appendChild(div);
+            });
+        }
+
+        function showOrderDetails(id) {
+            const order = orders.find((o) => o.id === id);
+            if (!order) return;
+            const container = document.getElementById("orderItemsList");
+            container.innerHTML = "";
+            order.items.forEach((item) => {
+                const div = document.createElement("div");
+                div.style.display = "flex";
+                div.style.justifyContent = "space-between";
+                div.style.marginBottom = "8px";
+                div.innerHTML = `
+                        <div style="font-weight: 600;">${item.name} <span class="muted">x ${item.qty}</span></div>
+                        <div class="p-price">$${(item.price * item.qty).toFixed(2)}</div>
+                    `;
+                container.appendChild(div);
+            });
+            document.getElementById("orderTotal").textContent = "Order Total: $" + order.total.toFixed(2);
+            document.getElementById("orderShipping").textContent = "Shipping: " + order.shipping;
+            document.getElementById("orderDetailsModal").style.display = "flex";
+        }
+
+        function showOrdersPanel() {
+            document.getElementById("ordersPanel").style.display = "block";
+            document.getElementById("productGrid").parentNode.parentNode.style.display = "none";
+            renderOrders();
+        }
+
+        function showProductsPanel() {
+            document.getElementById("ordersPanel").style.display = "none";
+            document.getElementById("productGrid").parentNode.parentNode.style.display = "block";
+        }
+
+        // ---------- Admin View Functions ----------
+        function switchToAdminView() {
+            currentView = 'admin';
+            $("#customerView").classList.add('hidden');
+            $("#adminView").classList.remove('hidden');
+            loadProductsAdmin();
+            loadReports();
+        }
+
+        function switchToCustomerView() {
+            currentView = 'customer';
+            $("#adminView").classList.add('hidden');
+            $("#customerView").classList.remove('hidden');
+            filterProducts();
+            renderCart();
+        }
+
+        // Admin Sidebar navigation
+        function showPage(event, p) {
+            document.querySelectorAll(".page").forEach(pg => pg.style.display = "none");
+            document.getElementById(p).style.display = "block";
+            document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
+            event.target.classList.add("active");
+        }
+
+        // Admin Modal functions
+        function openAddProduct() {
+            document.getElementById("modal").style.display = "flex";
+            document.getElementById("modal-title").textContent = "Add Product";
+            document.getElementById("pname").value = "";
+            document.getElementById("pdesc").value = "";
+            document.getElementById("pprice").value = "";
+            document.getElementById("pstock").value = "";
+            document.getElementById("pmodel").value = "";
+            document.getElementById("pstatus").value = "Available";
+            document.getElementById("pcategory").value = "";
+            document.getElementById("psubcategory").innerHTML = "";
+            document.getElementById("sub-category-container").style.display = "none";
+            document.getElementById("dynamic-attributes").innerHTML = "";
+            document.getElementById("saveBtn").onclick = addProductAdmin;
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        // Category/Subcategory logic
+        function onCategoryChange() {
+            const category = document.getElementById("pcategory").value;
+            const subContainer = document.getElementById("sub-category-container");
+            const subSelect = document.getElementById("psubcategory");
+            const dynDiv = document.getElementById("dynamic-attributes");
+            dynDiv.innerHTML = "";
+
+            if (typeof categoryAttributes[category] === 'object' && !Array.isArray(categoryAttributes[category])) {
+                subContainer.style.display = "block";
+                subSelect.innerHTML = "<option value=''>Select Sub-Category</option>";
+                Object.keys(categoryAttributes[category]).forEach(sc => {
+                    subSelect.innerHTML += `<option value="${sc}">${sc}</option>`;
+                });
+            } else {
+                subContainer.style.display = "none";
+                if (categoryAttributes[category]) generateAttributes(categoryAttributes[category]);
+            }
+        }
+
+        function onSubCategoryChange() {
+            const category = document.getElementById("pcategory").value;
+            const subcategory = document.getElementById("psubcategory").value;
+            const dynDiv = document.getElementById("dynamic-attributes");
+            dynDiv.innerHTML = "";
+            if (subcategory && categoryAttributes[category][subcategory]) {
+                generateAttributes(categoryAttributes[category][subcategory]);
+            }
+        }
+
+        function generateAttributes(attrs) {
+            const dynDiv = document.getElementById("dynamic-attributes");
+            attrs.forEach(attr => {
+                const label = document.createElement("label");
+                label.setAttribute("for", attr.id);
+                label.style.fontWeight = "bold";
+                label.textContent = attr.label;
+
+                let input;
+                if (attr.type === "textarea") {
+                    input = document.createElement("textarea");
+                    input.style.height = "50px";
+                } else {
+                    input = document.createElement("input");
+                    input.type = attr.type;
+                    if (attr.step) input.step = attr.step;
+                    if (attr.min) input.min = attr.min;
+                }
+                input.id = attr.id;
+                input.placeholder = "Enter " + attr.label.toLowerCase();
+                input.style.width = "100%";
+                input.style.marginBottom = "10px";
+                dynDiv.appendChild(label);
+                dynDiv.appendChild(input);
+            });
+        }
+
+        function getCategoryAttributes() {
+            const category = document.getElementById("pcategory").value;
+            let attrs = {};
+            if (category) {
+                if (Array.isArray(categoryAttributes[category])) {
+                    categoryAttributes[category].forEach(a => {
+                        attrs[a.id.replace('attr_', '')] = document.getElementById(a.id)?.value || "";
+                    });
+                } else if (document.getElementById("psubcategory").value) {
+                    const sub = document.getElementById("psubcategory").value;
+                    categoryAttributes[category][sub].forEach(a => {
+                        attrs[a.id.replace('attr_', '')] = document.getElementById(a.id)?.value || "";
+                    });
+                }
+            }
+            return attrs;
+        }
+
+        // Admin CRUD functions
+        function loadProductsAdmin() {
+            // Sort by sales for display
+            const sortedProducts = [...products].sort((a, b) => (b.sales || 0) - (a.sales || 0));
+
+            let out = "";
+            sortedProducts.forEach(p => {
+                out += `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>$${p.price.toFixed(2)}</td>
+                        <td>${p.category}</td>
+                        <td>${p.stock}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editProduct(${p.id})">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteProduct(${p.id})">Delete</button>
+                        </td>
+                    </tr>
+                    `;
+            });
+            document.getElementById("product-table").innerHTML = out;
+            document.getElementById("total-prod").textContent = products.length;
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            openAddProduct();
+            document.getElementById("modal-title").textContent = "Edit Product";
+            document.getElementById("pname").value = product.name;
+            document.getElementById("pdesc").value = product.desc;
+            document.getElementById("pprice").value = product.price;
+            document.getElementById("pstock").value = product.stock;
+            document.getElementById("pmodel").value = product.model || "";
+            document.getElementById("pstatus").value = product.status || "Available";
+            document.getElementById("pcategory").value = product.category;
+
+            onCategoryChange();
+
+            // Set attribute values
+            setTimeout(() => {
+                if (product.attributes) {
+                    Object.keys(product.attributes).forEach(key => {
+                        const input = document.getElementById(`attr_${key}`);
+                        if (input) input.value = product.attributes[key];
+                    });
+                }
+            }, 100);
+
+            document.getElementById("saveBtn").onclick = () => updateProduct(id);
+        }
+
+        function addProductAdmin() {
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            const product = {
+                id: newId,
+                name: document.getElementById("pname").value,
+                desc: document.getElementById("pdesc").value || "",
+                price: parseFloat(document.getElementById("pprice").value),
+                stock: parseInt(document.getElementById("pstock").value),
+                model: document.getElementById("pmodel").value,
+                status: document.getElementById("pstatus").value,
+                category: document.getElementById("pcategory").value,
+                sales: 0,
+                img: "https://via.placeholder.com/300x200?text=New+Product",
+                attributes: getCategoryAttributes()
+            };
+
+            if (!product.name || product.price < 0 || product.stock < 0 || !product.category) {
+                return alert("Please fill all required fields correctly!");
+            }
+
+            products.push(product);
+            localStorage.setItem('storeProducts', JSON.stringify(products));
+            closeModal();
+            loadProductsAdmin();
+            loadReports();
+
+            // Update customer view
+            if (currentView === 'customer') {
+                filterProducts();
+            }
+        }
+
+        function updateProduct(id) {
+            const productIndex = products.findIndex(p => p.id === id);
+            if (productIndex === -1) return;
+
+            products[productIndex] = {
+                ...products[productIndex],
+                name: document.getElementById("pname").value,
+                desc: document.getElementById("pdesc").value || "",
+                price: parseFloat(document.getElementById("pprice").value),
+                stock: parseInt(document.getElementById("pstock").value),
+                model: document.getElementById("pmodel").value,
+                status: document.getElementById("pstatus").value,
+                category: document.getElementById("pcategory").value,
+                attributes: getCategoryAttributes()
+            };
+
+            localStorage.setItem('storeProducts', JSON.stringify(products));
+            closeModal();
+            loadProductsAdmin();
+            loadReports();
+
+            // Update customer view
+            if (currentView === 'customer') {
+                filterProducts();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('storeProducts', JSON.stringify(products));
+                loadProductsAdmin();
+                loadReports();
+
+                // Update customer view
+                if (currentView === 'customer') {
+                    filterProducts();
+                }
+            }
+        }
+
+        function loadCustomers() {
+            let out = "";
+            customers.forEach(c => {
+                out += `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.name}</td>
+                        <td>${c.email}</td>
+                        <td>${c.phone}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editCustomer(${c.id})">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteCustomer(${c.id})">Delete</button>
+                        </td>
+                    </tr>
+                    `;
+            });
+            document.getElementById("customer-table").innerHTML = out;
+            document.getElementById("total-cust").textContent = customers.length;
+        }
+
+        // Reports function
+        function loadReports() {
+            // Sort products by sales
+            const sortedProducts = [...products].sort((a, b) => (b.sales || 0) - (a.sales || 0));
+
+            document.getElementById("total-prod-r").textContent = products.length;
+            if (products.length) {
+                document.getElementById("top-product-name").textContent = sortedProducts[0]?.name || "—";
+            }
+
+            let topProductsTable = "";
+            let chartHTML = "";
+            const top5 = sortedProducts.slice(0, 5);
+            const maxSales = Math.max(...top5.map(p => p.sales || 0), 1);
+
+            top5.forEach(p => {
+                topProductsTable += `<tr><td>${p.name}</td><td>${p.sales || 0}</td></tr>`;
+                const barHeight = ((p.sales || 0) / maxSales) * 150;
+                chartHTML += `
+                        <div class="bar">
+                            <div style="height:${barHeight}px;background:#3498db;"></div>
+                            <small>${p.name}</small>
+                        </div>
+                    `;
+            });
+
+            document.getElementById("top-products-table").innerHTML = topProductsTable;
+            document.getElementById("chart-container").innerHTML = chartHTML;
+
+            // Sort customers by total purchase
+            const sortedCustomers = [...customers].sort((a, b) => (b.total_purchase || 0) - (a.total_purchase || 0));
+            document.getElementById("total-cust-r").textContent = customers.length;
+
+            let topCustTable = "";
+            sortedCustomers.slice(0, 5).forEach(c => {
+                topCustTable += `<tr><td>${c.name}</td><td>$${c.total_purchase?.toFixed(2) || 0}</td></tr>`;
+            });
+            document.getElementById("top-customers-table").innerHTML = topCustTable;
+        }
+
+        // ---------- Event Listeners ----------
+        document.addEventListener("DOMContentLoaded", () => {
+            // Initial load for customer view
+            filterProducts();
+            renderCart();
+
+            // Product grid actions (View, Add) & Cart remove action
+            document.addEventListener("click", (e) => {
+                const action = e.target.dataset.action;
+                const id = e.target.dataset.id;
+                if (action === "view") {
+                    openModal(Number(id));
+                }
+                if (action === "add") {
+                    addToCart(Number(id), 1);
+                }
+                if (action === "remove") {
+                    removeFromCart(Number(id));
+                }
+            });
+
+            // Category selection
+            $("#categories").addEventListener("click", (e) => {
+                if (e.target.classList.contains("cat")) {
+                    $$(".cat").forEach((el) => el.classList.remove("active"));
+                    e.target.classList.add("active");
+                    filterProducts();
+                }
+            });
+
+            // Search and Filter
+            $("#searchInput").addEventListener("input", filterProducts);
+            $("#applyFilters").addEventListener("click", filterProducts);
+
+            // Product modal controls
+            $("#closeModal").addEventListener("click", closeModal);
+            $("#addToCart").addEventListener("click", (ev) => {
+                addToCart(Number(ev.target.dataset.id), Number($("#modalQty").value));
+                closeModal();
+            });
+
+            // Cart & Checkout
+            $("#btnCart").addEventListener("click", () => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                showProductsPanel();
+            });
+
+            // Checkout buttons
+            $("#checkoutBtn").addEventListener("click", () => {
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                if (cart.length === 0) {
+                    alert("Your cart is empty");
+                    return;
+                }
+                $("#checkoutModal").style.display = "flex";
+            });
+
+            $("#openCheckout").addEventListener("click", () => {
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                if (cart.length === 0) {
+                    alert("Your cart is empty");
+                    return;
+                }
+                $("#checkoutModal").style.display = "flex";
+            });
+
+            $("#closeCheckout").addEventListener("click", () => {
+                $("#checkoutModal").style.display = "none";
+            });
+
+            $("#cancelCheckout").addEventListener("click", () => {
+                $("#checkoutModal").style.display = "none";
+            });
+
+            // checkout submit (demo)
+            $("#checkoutForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                alert("Order placed (demo). Cart cleared. The new order should appear in 'Your Orders' if this was a real application.");
+                localStorage.removeItem("cart");
+                renderCart();
+                $("#checkoutModal").style.display = "none";
+            });
+
+            // Login/Register modals
+            const loginModal = $("#loginModal");
+            const registerModal = $("#registerModal");
+            const orderDetailsModal = $("#orderDetailsModal");
+
+            // فتح modal Login
+            $("#btnLogin").addEventListener("click", () => {
+                loginModal.style.display = "flex";
+                showProductsPanel();
+            });
+
+            // إغلاق modal Login
+            $("#closeLogin").addEventListener("click", () => {
+                loginModal.style.display = "none";
+            });
+
+            // Login Submit (demo)
+            $("#loginForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                alert("Login successful (demo).");
+                loginModal.style.display = "none";
+            });
+
+            // فتح modal Register من زر Register داخل Login
+            $("#registerBtn").addEventListener("click", () => {
+                loginModal.style.display = "none";
+                registerModal.style.display = "flex";
+            });
+
+            // إغلاق modal Register
+            $("#closeRegister").addEventListener("click", () => {
+                registerModal.style.display = "none";
+            });
+
+            // الانتقال من Register إلى Login
+            $("#linkToLogin").addEventListener("click", (e) => {
+                e.preventDefault();
+                registerModal.style.display = "none";
+                loginModal.style.display = "flex";
+            });
+
+            // Register Submit (demo)
+            $("#registerForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                alert("Account created and registered (demo). You can now login.");
+                registerModal.style.display = "none";
+                loginModal.style.display = "flex";
+            });
+
+            // عرض قائمة الطلبات من داخل modal Login
+            $("#viewOrdersBtn").addEventListener("click", () => {
+                loginModal.style.display = "none";
+                showOrdersPanel();
+            });
+
+            // إغلاق Order Details Modal
+            $("#closeOrderDetails").addEventListener("click", () => {
+                orderDetailsModal.style.display = "none";
+            });
+
+            // Admin button
+            $("#btnAdmin").addEventListener("click", switchToAdminView);
+
+            // Store brand (back to customer view)
+            $("#storeBrand").addEventListener("click", () => {
+                if (currentView === 'admin') {
+                    switchToCustomerView();
+                }
+            });
+
+            // Close modals on outside click
+            window.onclick = function (event) {
+                if (event.target == $("#productModal")) {
+                    $("#productModal").style.display = "none";
+                }
+                if (event.target == $("#checkoutModal")) {
+                    $("#checkoutModal").style.display = "none";
+                }
+                if (event.target == loginModal) {
+                    loginModal.style.display = "none";
+                }
+                if (event.target == registerModal) {
+                    registerModal.style.display = "none";
+                }
+                if (event.target == orderDetailsModal) {
+                    orderDetailsModal.style.display = "none";
+                }
+                if (event.target == $("#modal")) {
+                    closeModal();
+                }
+            }
+        });
+
+        // Initial setup
+        filterProducts();
+    </script>
+</body>
+</html>
